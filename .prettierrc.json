@@ -1,0 +1,15 @@
+{
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": false,
+    "printWidth": 190,
+    "overrides": [
+        {
+          "files": "support/**/*.steps.ts",
+          "options": {
+            "printWidth": 150
+          }
+        }
+      ]
+}

@@ -1,0 +1,70 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb",
+        "airbnb-typescript/base",
+        "plugin:playwright/playwright-test",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "overrides": [
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "project": "tsconfig.json",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "no-restricted-syntax": [ // omits for-of from https://github.com/airbnb/javascript/blob/46ae3e225673b6bbd52a49f78b9474cd282b8e4f/packages/eslint-config-airbnb-base/rules/style.js#L340C30-L340C30
+            "error",
+            {
+                "selector": "ForInStatement",
+                "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
+            },
+            {
+                "selector": "LabeledStatement",
+                "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
+            },
+            {
+                "selector": "WithStatement",
+                "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
+            }
+        ],
+        "no-await-in-loop": "off",
+        "no-case-declarations": "off",
+        "max-classes-per-file": "off",
+        "indent": [
+            "error",
+            4, { "SwitchCase": 1 }
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "@typescript-eslint/quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "arrow-body-style": "off",
+        "playwright/no-conditional-in-test": "off",
+        "import/prefer-default-export": "off",
+        "no-underscore-dangle": "off"
+    }
+}
