@@ -1,0 +1,14 @@
+{
+  "name": "fruuts-basket-pw-automation-training",
+  "version": "1.0.0",
+  "description": "A small training repository for people to learn playwright while using a custom Gherkin solution",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.46.1",
+    "@types/node": "^22.5.3"
+  }
+}
