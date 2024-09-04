@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# When committing through VSCode's git integration, the shell profile is not sourced
+# correctly for some reason, so nvm is not setting up the correct node version. The
+# expectation here is that your ~/.profile contains the nvm setup and/or "nvm use".
+if [ -f "$HOME/.profile" ] && ! command -v node >/dev/null 2>&1; then
+  . "$HOME/.profile"
+fi
+
+npx tsc
+npm run lint
+npm run format
