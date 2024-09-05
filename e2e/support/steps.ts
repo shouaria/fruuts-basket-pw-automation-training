@@ -1,7 +1,7 @@
 import { test as base, Page } from "@playwright/test";
 import { homePageSteps } from "e2e/support/step-definitions/homePage.steps";
 import { genericSteps } from "./step-definitions/generic.steps";
-import { combinedSteps } from "./step-definitions/combined.steps";
+import { fruitProductPageSteps } from "./step-definitions/fruitProductPage.steps";
 
 /**
  * This spreads all steps and exports them to easily be accessible
@@ -13,14 +13,14 @@ export class Steps {
     }
 
     get GIVEN() {
-        return { ...homePageSteps(this.page).GIVEN(), ...combinedSteps(this.page).GIVEN() };
+        return { ...homePageSteps(this.page).GIVEN(), ...fruitProductPageSteps(this.page).GIVEN() };
     }
 
     get WHEN() {
         return {
             ...genericSteps(this.page).WHEN(),
             ...homePageSteps(this.page).WHEN(),
-            ...combinedSteps(this.page).WHEN(),
+            ...fruitProductPageSteps(this.page).WHEN(),
         };
     }
 
@@ -28,7 +28,7 @@ export class Steps {
         return {
             ...genericSteps(this.page).THEN(),
             ...homePageSteps(this.page).THEN(),
-            ...combinedSteps(this.page).THEN(),
+            ...fruitProductPageSteps(this.page).THEN(),
         };
     }
 
@@ -38,8 +38,8 @@ export class Steps {
             ...genericSteps(this.page).THEN("AND"),
             ...homePageSteps(this.page).WHEN("AND"),
             ...homePageSteps(this.page).THEN("AND"),
-            ...combinedSteps(this.page).WHEN("AND"),
-            ...combinedSteps(this.page).THEN("AND"),
+            ...fruitProductPageSteps(this.page).WHEN("AND"),
+            ...fruitProductPageSteps(this.page).THEN("AND"),
         };
     }
 }

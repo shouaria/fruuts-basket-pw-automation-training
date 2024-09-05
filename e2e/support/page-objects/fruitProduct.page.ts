@@ -3,7 +3,7 @@ import { BasePage } from "./base/base.page";
 import { AllFruits } from "../types/fruits";
 
 export class FruitProductPage extends BasePage {
-    URL = "/product-page";
+    URL = "product-page";
 
     get elements() {
         return {
@@ -13,6 +13,15 @@ export class FruitProductPage extends BasePage {
             ADD_TO_CART_BUTTON: this.page.getByRole("link", { name: "Add to Cart", exact: true }),
             BUY_NOW_BUTTON: this.page.getByRole("link", { name: "Buy Now", exact: true }),
         };
+    }
+
+    async goTo(fruitProductPage?: AllFruits) {
+        if (fruitProductPage === undefined) {
+            await this.page.goto(this.URL);
+        } else {
+            const formattedURL = fruitProductPage.toLowerCase().split(" ").join("-");
+            await this.page.goto(`${this.URL}/${formattedURL}`);
+        }
     }
 
     async expectToBeOpen(secondaryHeading?: AllFruits) {
