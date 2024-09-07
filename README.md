@@ -23,7 +23,7 @@ npx playwright install
 
 ## Usage
 
-To run tests headlessly, you must first be authenticated on ZScaler and then you can run:
+To run tests headlessly, run:
 
 ```sh
 npm run test:all
