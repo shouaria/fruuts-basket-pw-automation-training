@@ -1,11 +1,11 @@
 import { Scenario } from "e2e/support/steps";
 
 Scenario.describe(
-    "See a puppy's details",
+    "See a fruit's details",
     {
         annotation: {
             type: "Feature",
-            description: "As a user, I want to be able to see details about a puppy before I adopt them",
+            description: "As a user, I want to be able to see details about a fruit before I buy it",
         },
     },
     () => {
