@@ -61,6 +61,6 @@ export const Scenario = base.extend<StepFixture>({
 
 // To be used inside step files to have reports use step names
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function Step(prefix: string, description: string, callback: any) {
-    await Scenario.step(`${prefix} ${description}`, callback);
+export async function Step<T>(prefix: string, description: string, callback: () => Promise<T>): Promise<T> {
+    return Scenario.step(`${prefix} ${description}`, callback);
 }
