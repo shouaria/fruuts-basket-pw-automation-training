@@ -1,4 +1,4 @@
-import { Scenario } from "e2e/support/steps";
+import { Scenario } from "e2e/support/step-definitions/steps";
 
 Scenario.describe(
     "Fruuts Basket Home Page",

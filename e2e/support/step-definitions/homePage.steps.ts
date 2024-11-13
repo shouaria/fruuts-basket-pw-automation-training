@@ -1,6 +1,6 @@
 import { expect, Page } from "@playwright/test";
 import { HomePage } from "e2e/support/page-objects/home.page";
-import { Step } from "e2e/support/steps";
+import { Step } from "e2e/support/step-definitions/steps";
 import { AllFruits } from "../types/fruits";
 
 export const homePageSteps = (page: Page) => {
@@ -38,7 +38,7 @@ export const homePageSteps = (page: Page) => {
 
                 "I can see the fruit <fruitName>": async (fruitName: AllFruits) => {
                     await Step(prefix, `I can see the fruit ${fruitName}`, async () => {
-                        await expect(homePage.sections.FRUIT_SLIDER_SECTION.getByRole("heading", { name: fruitName })).toBeVisible();
+                        await expect(homePage.sections.FRUIT_SLIDER_SECTION.getByRole("link", { name: fruitName })).toBeVisible();
                     });
                 },
             };

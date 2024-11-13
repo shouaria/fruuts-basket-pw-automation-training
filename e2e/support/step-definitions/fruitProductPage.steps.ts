@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { Step } from "e2e/support/steps";
+import { Step } from "e2e/support/step-definitions/steps";
 import { FruitProductPage } from "../page-objects/fruitProduct.page";
 import { AllFruits } from "../types/fruits";
 

@@ -1,6 +1,6 @@
 import { Download, Locator, Page, expect } from "@playwright/test";
 import * as fs from "fs";
-import { Step } from "e2e/support/steps";
+import { Step } from "e2e/support/step-definitions/steps";
 
 export type DownloadType = "download the file" | "export CSV" | "export Excel";
 
