@@ -8,6 +8,7 @@ if [ -f "$HOME/.profile" ] && ! command -v node >/dev/null 2>&1; then
   . "$HOME/.profile"
 fi
 
+npm run sort-steps
 npx tsc
 npm run lint
 npm run format
