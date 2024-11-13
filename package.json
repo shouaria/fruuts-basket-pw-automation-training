@@ -11,8 +11,9 @@
     "prepare": "husky install",
     "test:all": "npx playwright test",
     "tag": "npx playwright test --headed --grep",
-    "report": "npx playwright show-report"},
-    "sort-steps": "node --experimental-modules scripts/sortStepsFile.mjs",
+    "report": "npx playwright show-report",
+    "sort-steps": "node --experimental-modules scripts/sortStepsFile.mjs"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
