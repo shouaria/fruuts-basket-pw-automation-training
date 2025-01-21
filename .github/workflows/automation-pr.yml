@@ -1,0 +1,61 @@
+# name: QA-Automation Pull Request Workflow
+# on:
+#     pull_request:
+#         branches:
+#             - main
+
+# jobs:
+#     build:
+#         runs-on: x-large
+#         steps:
+#             - name: Checkout repository
+#               uses: actions/checkout@v4
+
+#             - name: Define node version
+#               uses: actions/setup-node@v4
+#               with:
+#                   node-version: 20
+
+#             - name: Install dependencies
+#               run: npm ci
+
+#             - name: Typecheck
+#               run: npx tsc
+
+#             - name: Lint
+#               run: npm run lint
+
+#     test:
+#         runs-on: x-large
+#         env:
+#             TZ: America/New_York
+#         concurrency: ci_qa_automation
+#         steps:
+#             - name: Checkout repository
+#               uses: actions/checkout@v4
+
+#             - name: Define node version
+#               uses: actions/setup-node@v4
+#               with:
+#                   node-version: 20
+
+#             - name: Install dependencies
+#               run: npm ci
+
+#             - name: Install Playwright
+#               run: npx playwright install --with-deps
+
+#             - name: Install Google Chrome
+#               run: npx playwright install chrome
+
+#             - name: Run automation
+#               run: npx playwright test
+#               timeout-minutes: 30 # We should always give a little extra time above average run time incase of slight variables
+
+#             - name: Create Playwright report artifact
+#               uses: actions/upload-artifact@v4
+#               if: always()
+#               with:
+#                   name: playwright-report-<productname>-e2e-tests
+#                   path: playwright-report/
+#                   retention-days: 30
