@@ -1,0 +1,318 @@
+# name: QA-Automation Mainline Workflow
+# concurrency: ci_qa_automation
+# on:
+#     workflow_dispatch:
+#         inputs:
+#             features:
+#                 type: choice
+#                 description: "Which feature would you like to run?"
+#                 options:
+#                     - "e2e/tests/"
+#                     - "e2e/tests/unit/"
+#                     - "--grep @SMOKE"
+#                 required: true
+#                 default: "e2e/tests/"
+#             triggered_by_details:
+#                 description: "Details about what triggered this workflow"
+
+#     schedule:
+#         # Run each weekday at 2:00am ET
+#         - cron: "00 07 * * 1-5"
+
+# jobs:
+#     build:
+#         runs-on: x-large
+#         env:
+#             TZ: America/New_York
+#             SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+#         steps:
+#             - name: Checkout repository
+#               uses: actions/checkout@v4
+
+#             - name: Define node version
+#               uses: actions/setup-node@v4
+#               with:
+#                   node-version: 20
+
+#             - name: Retrieve GHA Variables
+#               run: |
+#                   echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME" >> $GITHUB_ENV
+#                   echo "GITHUB_ACTIONS_RUN=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
+#                   echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+#                   echo "SELECTED_FEATURE=${{ github.event.inputs.features }}" >> $GITHUB_ENV
+
+#             - name: Post workflow start to slack
+#               id: slack
+#               uses: slackapi/slack-github-action@v1.25.0
+#               with:
+#                   channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+#                   payload: |
+#                       {
+#                           "attachments": [
+#                               {
+#                                 "mrkdwn_in": ["text"],
+#                                   "color": "dbab09",
+#                                   "pretext": "*<productname>* E2E tests in progress :<emojiname>:",
+#                                   "fields": [
+#                                       {
+#                                           "title": "*Author:*",
+#                                           "value": "${{ github.actor }}",
+#                                           "short": false
+#                                       },
+#                                       {
+#                                           "title": "*Triggered By:*",
+#                                           "value": "${{ github.event.inputs.triggered_by_details || '<productname>-automation' }}",
+#                                           "short": false
+#                                       },
+#                                       {
+#                                           "title": "*Trigger Event:*",
+#                                           "value": "${{ env.GITHUB_EVENT_NAME }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*Automation Branch/Tag:*",
+#                                           "value": "${{ github.head_ref || github.ref_name }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*Selected Feature*",
+#                                           "value": "${{ env.SELECTED_FEATURE || 'e2e/tests/' }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*GitHub Actions URL:*",
+#                                           "value": "<${{ env.GITHUB_ACTIONS_RUN }}|View GitHub Actions Run>",
+#                                           "short": true
+#                                       }
+#                                   ]
+#                               }
+#                           ]
+#                       }
+
+#             - name: Install dependencies
+#               run: npm ci
+
+#             - name: Install Playwright
+#               run: npx playwright install --with-deps
+
+#             - name: Install Google Chrome
+#               run: npx playwright install chrome
+
+#             - name: Run automation
+#               run: npx playwright test ${{ github.event.inputs.features }}
+#               timeout-minutes: 40 # We should always give a little extra time above average run time incase of slight variables
+
+#             - name: Create Playwright report artifact
+#               uses: actions/upload-artifact@v4
+#               if: always()
+#               with:
+#                   name: playwright-report-<productname>-e2e-tests
+#                   path: playwright-report/
+#                   retention-days: 30
+
+#             - name: Setup Python
+#               uses: actions/setup-python@v5
+#               if: success() || failure()
+#               with:
+#                   python-version: "3.x"
+
+#             - name: Set Current Date and Time
+#               if: success() || failure()
+#               id: current-date-time
+#               run: |
+#                   echo "DATE_TIME=$(date +"%Y-%m-%d -- %H:%M:%S %Z")" >> $GITHUB_OUTPUT
+
+#             - name: Remove Emojis from triggered_by_details
+#               if: success() || failure()
+#               id: remove-triggered-by-details-emojis
+#               run: |
+#                   input_value="${{ github.event.inputs.triggered_by_details }}"
+#                   echo "result=$(echo "$input_value" | sed 's/:[^:]*:/:/g')" >> $GITHUB_OUTPUT
+
+#             - name: Upload test results to TestRail
+#               if: ${{ (success() || failure()) && (github.event.inputs.triggered_by_details == '') }}
+#               env:
+#                   TESTRAIL_USERNAME: ${{ secrets.TESTRAIL_USERNAME }}
+#                   TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+#                   TESTRAIL_HOST: https://<companyname>.testrail.io
+#                   TESTRAIL_PROJECT_NAME: Project\ Name
+#                   TESTRAIL_PROJECT_ID: 01
+#                   TESTRAIL_SUITE_ID: 5555
+#               run: |
+#                   pip install trcli
+
+#                   export TESTRAIL_RUN_URL=$(trcli -n \
+#                   -h ${{ env.TESTRAIL_HOST }} \
+#                   --project ${{ env.TESTRAIL_PROJECT_NAME }} \
+#                   --project-id ${{ env.TESTRAIL_PROJECT_ID }} \
+#                   --username ${{ env.TESTRAIL_USERNAME }} \
+#                   --key ${{ env.TESTRAIL_API_KEY }} \
+#                   parse_junit \
+#                   --suite-id ${{ env.TESTRAIL_SUITE_ID }} \
+#                   --case-matcher name \
+#                   --title "[${{ env.SELECTED_FEATURE || 'e2e/tests/' }}] ${{ steps.remove-triggered-by-details-emojis.outputs.result || '<productname>-automation' }} [${{ steps.current-date-time.outputs.DATE_TIME }}]" \
+#                   --run-description "GITHUB RUN URL: ${{ env.GITHUB_ACTIONS_RUN }}" \
+#                   -f "./test-results/junit-report.xml" | grep -o 'http[s]\?://[^"]\+runs[^"]\+')
+
+#                   echo "TESTRAIL_RUN_URL=${TESTRAIL_RUN_URL}" >> $GITHUB_ENV
+
+#             - name: Set unique_subdirectory variable
+#               if: success() || failure()
+#               run: echo "unique_subdirectory=playwright-webpage-report/$(date +%Y-%m)/runid-${{ github.run_id }}-$(date +%Y-%m-%d)-attempt-${{ github.run_attempt }}.html" >> $GITHUB_ENV
+
+#             - name: Echo unique_subdirectory
+#               if: success() || failure()
+#               run: echo "${{ env.unique_subdirectory }}"
+
+#             - name: Set web_report_url variable
+#               if: success() || failure()
+#               run: echo "web_report_url=https://<uniqueGHPagesLink>.pages.github.io/${{ env.unique_subdirectory }}" >> $GITHUB_ENV
+
+#             - name: Set report to both TestRail and Web Report URL
+#               if: (success() || failure()) && (env.TESTRAIL_RUN_URL != '')
+#               run: echo "report_value=[ <${{ env.TESTRAIL_RUN_URL }}|TestRail Report> | <${{env.web_report_url}}|Web HTML Report> ]" >> $GITHUB_ENV
+
+#             - name: Set report URL to only "Web Report"
+#               if: (success() || failure()) && (env.TESTRAIL_RUN_URL == '')
+#               run: echo "report_value=[ <${{env.web_report_url}}|Web HTML Report> ]" >> $GITHUB_ENV
+
+#             - name: Make Playwright Report subdirectory
+#               if: success() || failure()
+#               run: mkdir -p ${{ env.unique_subdirectory }} # This step creates a unique subdirectory based on the run ID and date
+
+#             - name: Remove trace files from Playwright report to save GH-Pages storage space
+#               if: success() || failure()
+#               run: |
+#                   rm -rf playwright-report/trace
+#                   rm -f playwright-report/data/*.zip
+
+#             - name: Move the Playwright report to subdirectory
+#               if: success() || failure()
+#               run: mv playwright-report/* "${{ env.unique_subdirectory }}"
+
+#             - name: Stash changes on main branch
+#               if: success() || failure()
+#               run: |
+#                   git add playwright-webpage-report/
+#                   git stash save "Playwright report changes"
+
+#             - name: Checkout gh-pages branch
+#               if: success() || failure()
+#               uses: actions/checkout@v4
+#               with:
+#                   ref: gh-pages
+
+#             - name: Check if there are reports for the previous month
+#               id: check-previous-month-reports
+#               if: success() || failure()
+#               run: |
+#                   prev_month=$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m)
+#                   echo "Previous Month: $prev_month"
+#                   if [ -d "playwright-webpage-report/${prev_month}" ]; then
+#                     echo "Reports for $prev_month exist."
+#                     echo "prune_old_reports=true" >> $GITHUB_OUTPUT
+#                   else
+#                     echo "No reports for $prev_month."
+#                     echo "prune_old_reports=false" >> $GITHUB_OUTPUT
+#                   fi
+
+#             - name: Check prune_old_reports output
+#               run: echo "prune_old_reports = ${{ steps.check-previous-month-reports.outputs.prune_old_reports }}"
+
+#             - name: Checkout empty-commit-history branch
+#               if: (success() || failure()) && (steps.check-previous-month-reports.outputs.prune_old_reports == 'true')
+#               uses: actions/checkout@v4
+#               with:
+#                   ref: empty-commit-history-gh-pages
+
+#             - name: Apply stashed changes
+#               if: success() || failure()
+#               run: git stash apply
+
+#             - name: Commit and push changes and empty commit history to the gh-pages branch
+#               if: (success() || failure()) && (steps.check-previous-month-reports.outputs.prune_old_reports == 'true')
+#               run: |
+#                   git config user.name "${{ github.actor }}"
+#                   git config user.email "${{ github.actor }}@users.noreply.github.com"
+#                   git add playwright-webpage-report/
+#                   git commit -m "Update Playwright report"
+#                   git push --force origin empty-commit-history-gh-pages:gh-pages
+
+#             - name: Commit and push the changes to the gh-pages branch
+#               if: (success() || failure()) && (steps.check-previous-month-reports.outputs.prune_old_reports == 'false')
+#               run: |
+#                   git config user.name "${{ github.actor }}"
+#                   git config user.email "${{ github.actor }}@users.noreply.github.com"
+#                   git add playwright-webpage-report/
+#                   git commit -m "Update Playwright report"
+#                   git push origin gh-pages
+
+#             - name: Publish Summary
+#               if: success() || failure()
+#               run: echo -e "| Full Report |  |\n| --- | --- |\n| URL | https://<uniqueGHPagesLink>.pages.github.io/${{ env.unique_subdirectory }}  |\n| Note | Webpage reports only last 1 month. The test report may take a few minutes to be deployed." >> $GITHUB_STEP_SUMMARY
+
+#             - name: Add "emoji"
+#               if: success()
+#               run: |
+#                   echo "EMOJI=:<emojicheckmark>:" >> $GITHUB_ENV
+#                   echo "COLOR=#36a64f" >> $GITHUB_ENV
+
+#             - name: Add "emoji"
+#               if: failure()
+#               run: |
+#                   echo "EMOJI=:<emojifailure>:" >> $GITHUB_ENV
+#                   echo "COLOR=#ff0000" >> $GITHUB_ENV
+
+#             - name: Post result to Slack
+#               if: always()
+#               uses: slackapi/slack-github-action@v1.25.0
+#               with:
+#                   channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+#                   update-ts: ${{ steps.slack.outputs.ts }}
+#                   payload: |
+#                       {
+#                           "attachments": [
+#                               {
+#                                 "mrkdwn_in": ["text"],
+#                                   "color": "${{ env.COLOR }}",
+#                                   "pretext": "*<productname>* E2E tests result: *${{ job.status }}* ${{ env.EMOJI }}",
+#                                   "fields": [
+#                                       {
+#                                           "title": "*Author:*",
+#                                           "value": "${{ github.actor }}",
+#                                           "short": false
+#                                       },
+#                                       {
+#                                           "title": "*Triggered By:*",
+#                                           "value": "${{ github.event.inputs.triggered_by_details || '<productname>-automation' }}",
+#                                           "short": false
+#                                       },
+#                                       {
+#                                           "title": "*Trigger Event:*",
+#                                           "value": "${{ env.GITHUB_EVENT_NAME }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*Automation Branch/Tag:*",
+#                                           "value": "${{ github.head_ref || github.ref_name }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*Selected Feature:*",
+#                                           "value": "${{ env.SELECTED_FEATURE || 'e2e/tests/' }}",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*GitHub Actions URL:*",
+#                                           "value": "<${{ env.GITHUB_ACTIONS_RUN }}|View GitHub Actions Run>",
+#                                           "short": true
+#                                       },
+#                                       {
+#                                           "title": "*Report(s) (Web may take a few minutes to deploy):*",
+#                                           "value": "${{ env.report_value }}",
+#                                           "short": false
+#                                       }
+#                                   ]
+#                               }
+#                           ]
+#                       }
