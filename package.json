@@ -9,6 +9,7 @@
     "format": "node_modules/.bin/prettier --check './e2e/**/*.{js,ts,tsx}' './e2e/**/*.*.{js,ts,tsx}'",
     "format-fix": "node_modules/.bin/prettier --write './e2e/**/*.{js,ts,tsx}' './e2e/**/*.*.{js,ts,tsx}'",
     "prepare": "husky install",
+    "test-case-id-check": "node scripts/checkTestsForCaseIDs.mjs",
     "test:all": "npx playwright test",
     "tag": "npx playwright test --headed --grep",
     "report": "npx playwright show-report",
@@ -18,7 +19,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@playwright/test": "^1.46.1"
+    "@playwright/test": "^1.46.1",
+    "glob": "^10.3.10"
   },
   "devDependencies": {
     "@types/node": "^22.5.3",
