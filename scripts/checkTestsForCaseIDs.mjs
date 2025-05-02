@@ -2,6 +2,10 @@
 import { sync as glob } from "glob";
 import fs from "node:fs";
 
+// This script checks all tests and scenarios for Test Case IDs prefixed as a
+// test or scenario title and wrapped in brackets
+// Ex: Scenario("[C2741242] - User is able to see a 'Blueberry Burst' on the first page"
+
 const allTestCaseIDs = new Map();
 const duplicateTestCaseIDs = new Map();
 const missingTestCaseIDs = [];

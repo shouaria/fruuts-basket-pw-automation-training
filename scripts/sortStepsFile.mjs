@@ -2,6 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+// This script sorts the steps in the 'Steps' class found in the master steps file '.steps.ts' alphabetically
+
 const filePath = path.resolve("e2e/support/step-definitions/steps.ts");
 const sections = ["GIVEN", "WHEN", "THEN", "AND"];
 
