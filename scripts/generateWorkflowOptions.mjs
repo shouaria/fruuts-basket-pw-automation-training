@@ -37,10 +37,11 @@ const generateOptions = () => {
         "--grep @SMOKE", // Add smoke tests option
         ...Array.from(specFiles).sort(), // Add specific features
     ]
-        // The indent spacing of workflow file needs to match 
-        // the below option or it will falsely say options are up to date 
+        // The indent spacing of below option string
+        // needs to match the workflow file indent spacing of options 
+        // or it will falsely say options are up to date 
         // and not change anything
-        .map((option) => `          - "${option}"`) 
+        .map((option) => `          - "${option}"`) // The - lines are 10 spaces indented (each indentation level is 2 spaces, and this is 5 levels deep).
         .join("\n");
 };
 
