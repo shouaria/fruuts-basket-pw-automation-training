@@ -8,6 +8,7 @@ import fs from "fs";
 
 const workflowPath = ".github/workflows/automation-tests.yml";
 const ignorePatterns = ["unit", "data-seeding"];
+const expectedIndentation = "          "; // The - lines are 10 spaces indented (each indentation level is 2 spaces, and this is 5 levels deep).
 
 const generateOptions = () => {
     const testDirs = new Set();
@@ -41,13 +42,28 @@ const generateOptions = () => {
         // needs to match the workflow file indent spacing of options 
         // or it will falsely say options are up to date 
         // and not change anything
-        .map((option) => `          - "${option}"`) // The - lines are 10 spaces indented (each indentation level is 2 spaces, and this is 5 levels deep).
+        .map((option) => `${expectedIndentation}- "${option}"`)
         .join("\n");
 };
 
 try {
     // Read file content
     const workflowContent = fs.readFileSync(workflowPath, "utf8");
+
+    // Detect actual indentation of the first option line
+    const match = workflowContent.match(/options:\n([ \t]+)- /);
+    if (!match) {
+        throw new Error(
+            `Could not detect indentation level for options list in ${workflowPath}`
+        );
+    }
+
+    const actualIndentation = match[1];
+    if (actualIndentation !== expectedIndentation) {
+        throw new Error(
+            `Indentation mismatch: expected ${expectedIndentation.length} spaces, but found ${actualIndentation.length} spaces in ${workflowPath}`
+        );
+    }
 
     // Generate new options
     const newOptions = generateOptions();
@@ -62,13 +78,13 @@ try {
     if (workflowContent !== updatedContent) {
         fs.writeFileSync(workflowPath, updatedContent, "utf8");
         console.log(
-            `Updated workflow options in ${workflowPath}\nplease commit the changes`
+            `✅ Updated workflow options in ${workflowPath}\nPlease commit the changes.`
         );
         process.exit(1);
     } else {
-        console.log(`Workflow options are up to date in ${workflowPath}`);
+        console.log(`✅ Workflow options are up to date in ${workflowPath}`);
     }
 } catch (error) {
-    console.error(`Error processing workflow file ${workflowPath}:`, error);
+    console.error(`❌ Error: ${error.message}`);
     process.exit(1);
 }
