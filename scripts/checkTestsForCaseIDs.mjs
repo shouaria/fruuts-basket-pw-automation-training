@@ -20,7 +20,7 @@ glob("e2e/features/**/*.spec.ts", {
 
         if (testNameMatch) {
             const testName = testNameMatch[1];
-            const testCaseIDMatch = line.match(/\[C(\d+)\]/);
+            const testCaseIDMatch = line.match(/\[C(\d+)\]/); // <-- The 'C' is standard for TestRail, replace this with any other tag for other TCMs if needed
 
             if (testCaseIDMatch) {
                 const testCaseID = testCaseIDMatch[1];

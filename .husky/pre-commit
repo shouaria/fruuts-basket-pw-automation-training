@@ -8,7 +8,7 @@ if [ -f "$HOME/.profile" ] && ! command -v node >/dev/null 2>&1; then
   . "$HOME/.profile"
 fi
 
-# npm run test-case-id-check
+npm run test-case-id-check
 npm run step-key-check
 npm run sort-steps
 npx tsc

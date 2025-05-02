@@ -9,7 +9,7 @@ Scenario.describe(
         },
     },
     () => {
-        Scenario("User is able to return to the home page after viewing a fruit's details", async ({ steps }) => {
+        Scenario("[C12345] - User is able to return to the home page after viewing a fruit's details", async ({ steps }) => {
             await steps.GIVEN["I am on the <fruitName> product page"]("Blueberry Burst");
             await steps.WHEN["I return to the Fruuts Basket home page"]();
             await steps.THEN["I am on the home page"]();
