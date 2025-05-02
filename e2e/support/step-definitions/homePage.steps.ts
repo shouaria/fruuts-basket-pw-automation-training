@@ -1,13 +1,13 @@
 import { expect, Page } from "@playwright/test";
 import { HomePage } from "e2e/support/page-objects/home.page";
-import { Step } from "e2e/support/step-definitions/steps";
+import { GIVEN_PREFIX, GivenPrefix, Step, THEN_PREFIX, ThenPrefix, WHEN_PREFIX, WhenPrefix } from "e2e/support/step-definitions/steps";
 import { AllFruits } from "../types/fruits";
 
 export const homePageSteps = (page: Page) => {
     const homePage = new HomePage(page);
 
     return {
-        GIVEN: (prefix = "GIVEN") => {
+        GIVEN: (prefix: GivenPrefix = GIVEN_PREFIX) => {
             return {
                 "I am on the Fruuts Basket home page": async () => {
                     await Step(prefix, "I am on the Fruuts Basket home page", async () => {
@@ -17,7 +17,7 @@ export const homePageSteps = (page: Page) => {
             };
         },
 
-        WHEN: (prefix: "WHEN" | "AND" = "WHEN") => {
+        WHEN: (prefix: WhenPrefix = WHEN_PREFIX) => {
             return {
                 "I proceed to the product page for the fruit <fruitName>": async (fruitName: AllFruits) => {
                     await Step(prefix, `I proceed to the product page for the fruit ${fruitName}`, async () => {
@@ -27,7 +27,7 @@ export const homePageSteps = (page: Page) => {
             };
         },
 
-        THEN: (prefix: "THEN" | "AND" = "THEN") => {
+        THEN: (prefix: ThenPrefix = THEN_PREFIX) => {
             return {
                 "I am on the home page": async () => {
                     await Step(prefix, "I am on the home page", async () => {

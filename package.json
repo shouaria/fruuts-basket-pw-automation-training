@@ -10,8 +10,12 @@
     "format-fix": "node_modules/.bin/prettier --write './e2e/**/*.{js,ts,tsx}' './e2e/**/*.*.{js,ts,tsx}'",
     "prepare": "husky install",
     "test-case-id-check": "node scripts/checkTestsForCaseIDs.mjs",
+    "gherkin-gen": "rm -rf $(pwd)/features && node scripts/generateGherkinFeatures.mjs",
+    "step-key-check": "node scripts/checkStepKeysAndDescriptions.mjs",
+    "add-workflow-options": "node scripts/generateWorkflowOptions.mjs",
     "test:all": "npx playwright test",
     "tag": "npx playwright test --headed --grep",
+    "tagH:": "npx playwright test --headed --grep",
     "report": "npx playwright show-report",
     "sort-steps": "node --experimental-modules scripts/sortStepsFile.mjs"
 },

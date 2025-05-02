@@ -64,6 +64,13 @@ export const Scenario = base.extend<StepFixture>({
 
 // To be used inside step files to have reports use step names
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function Step<T>(prefix: string, description: string, callback: () => Promise<T>): Promise<T> {
+export async function Step<T>(prefix: GivenPrefix | WhenPrefix | ThenPrefix, description: string, callback: () => Promise<T>): Promise<T> {
     return Scenario.step(`${prefix} ${description}`, callback);
 }
+
+export type GivenPrefix = "GIVEN" | "AND";
+export const GIVEN_PREFIX = "GIVEN";
+export type WhenPrefix = "WHEN" | "AND";
+export const WHEN_PREFIX = "WHEN";
+export type ThenPrefix = "THEN" | "AND";
+export const THEN_PREFIX = "THEN";

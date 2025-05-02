@@ -1,12 +1,12 @@
 import { Download, Locator, Page, expect } from "@playwright/test";
 import * as fs from "fs";
-import { Step } from "e2e/support/step-definitions/steps";
+import { Step, THEN_PREFIX, ThenPrefix, WHEN_PREFIX, WhenPrefix } from "e2e/support/step-definitions/steps";
 
 export type DownloadType = "download the file" | "export CSV" | "export Excel";
 
 export const genericSteps = (page: Page) => {
     return {
-        WHEN: (prefix: "WHEN" | "AND" = "WHEN") => {
+        WHEN: (prefix: WhenPrefix = WHEN_PREFIX) => {
             return {
                 // Must declare const newWindow = await.steps.WHEN["I am on a new browser window"]
                 // when calling this step to use newWindow in other steps
@@ -19,8 +19,8 @@ export const genericSteps = (page: Page) => {
                 },
                 // Must declare const newDownload = await.steps.WHEN["I choose to (download the file|export CSV|export Excel) for (<customString>)"]
                 // when calling this step to use newDownload in other steps
-                "I choose to (download the file|export CSV|export Excel) for (<customString>)": async (downloadType: DownloadType, customString: string, locator: Locator) => {
-                    return Step(prefix, `I choose to ${downloadType} for ${customString}`, async () => {
+                "I choose to <download|export> for <customString>": async (downloadOrExport: DownloadType, customString: string, locator: Locator) => {
+                    return Step(prefix, `I choose to ${downloadOrExport} for ${customString}`, async () => {
                         const newDownload = page.waitForEvent("download");
                         await locator.click();
                         return newDownload;
@@ -29,7 +29,7 @@ export const genericSteps = (page: Page) => {
             };
         },
 
-        THEN: (prefix: "THEN" | "AND" = "THEN") => {
+        THEN: (prefix: ThenPrefix = THEN_PREFIX) => {
             return {
                 "I see the file was downloaded": async (fileName: string, newDownload: Download) => {
                     await Step(prefix, "I see the file was downloaded", async () => {
