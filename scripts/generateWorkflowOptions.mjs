@@ -38,7 +38,8 @@ const generateOptions = () => {
         ...Array.from(specFiles).sort(), // Add specific features
     ]
         // The indent spacing of workflow file needs to match 
-        // the below option or it will say up to date and not change
+        // the below option or it will falsely say options are up to date 
+        // and not change anything
         .map((option) => `          - "${option}"`) 
         .join("\n");
 };
